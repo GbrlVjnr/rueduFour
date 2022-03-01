@@ -1,1 +1,1 @@
-web: gunicorn ruedufour.wsgi
+web: gunicorn rueduFour.wsgi
