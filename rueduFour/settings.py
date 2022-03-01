@@ -29,10 +29,12 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Deployment config
+DEBUG = False
 
-ALLOWED_HOSTS = []
+# Deployment config
+# ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', '.herokuapp.com']
 
 
 # Application definition
@@ -40,6 +42,8 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'comptabilite.apps.ComptabiliteConfig',
     'bootstrap5',
+    # Deployment config
+    'whitenoise.runserver_nostatic',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -56,6 +60,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # Deployment config
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'rueduFour.urls'
@@ -89,6 +95,10 @@ DATABASES = {
     }
 }
 
+# Deployment config
+import dj_database_url
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -140,5 +150,10 @@ LOGIN_URL = '/login/'
 BANK_WEBSITE = env('BANK_WEBSITE')
 BANK_LOGIN = env('BANK_LOGIN')
 BANK_PASSWORD = env('BANK_PASSWORD')
+
+# Deployment config
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
