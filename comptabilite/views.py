@@ -112,18 +112,14 @@ def home(request, year):
                 elif request.POST['distribution'] == "custom":
                     for item, key in request.POST:
                         print(key)
-                        if item[key] != '':
-                            print("recording custom data")
+                        if item[str(key)] != '':
                             if Distribution.objects.filter(entry=entry, account__id=key).exists():
-                                print("existing custom distribution to update")
                                 Distribution.objects.filter(entry=entry, account__id=key).update(
-                                    entry=entry, account=key, amount=item[key])
-                                print("existing distribution updated")
+                                    entry=entry, account=key, amount=item[str(key)])
                         else:
                             new_distribution = Distribution(
-                                entry=entry, account=account, amount=item[key])
+                                entry=entry, account=account, amount=item[str(key)])
                             new_distribution.save()
-                            print("new custom distribution added")
 
                 return redirect('home', aujdh.year)
 
