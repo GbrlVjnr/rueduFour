@@ -111,14 +111,19 @@ def home(request, year):
                 # Distributes the transaction depending on the amounts specified in the form
                 elif request.POST['distribution'] == "custom":
                     for item, key in request.POST:
+                        print(key)
                         if item[key] != '':
+                            print("recording custom data")
                             if Distribution.objects.filter(entry=entry, account__id=key).exists():
+                                print("existing custom distribution to update")
                                 Distribution.objects.filter(entry=entry, account__id=key).update(
                                     entry=entry, account=key, amount=item[key])
+                                print("existing distribution updated")
                         else:
                             new_distribution = Distribution(
                                 entry=entry, account=account, amount=item[key])
                             new_distribution.save()
+                            print("new custom distribution added")
 
                 return redirect('home', aujdh.year)
 
