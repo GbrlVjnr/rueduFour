@@ -5,3 +5,7 @@ register = template.Library()
 @register.filter(name="getvalue")
 def getvalue(value, key):
     return value[key]
+
+@register.filter(name="previous")
+def previous(value):
+    return value - 1

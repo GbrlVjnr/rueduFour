@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% load custom_extras %}
+
+{% block content %}
+<!-- Titre de la page -->
+<h1 class="display-2 m-4 text-capitalize">{{ page }}</h1>
+
+{% for invoice in invoices %}
+    <div class="card p-3 m-2" style="width: 40rem;">
+        <div class="card-body">
+          <h5 class="card-title">{{ invoice.account.full_name }} </h5>
+          <h6 class="card-subtitle mb-2 text-muted">Adresse d'expédition: {{ invoice.account.email }}</h6>
+          <h6 class="card-subtitle mb-2 text-muted">Adresse de facturation: 53, rue du Four - 75006 Paris</h6>
+          <h6 class="card-subtitle mb-2 text-muted">Date de facturation : {{ aujdh|date:"j F Y" }} </h6>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Intitulé(s)</th>
+                <th scope="col">Montant(s)</th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for item in invoice.expenses %}
+                <tr>
+                    <td> {{ item.entry.label }} </td>
+                    <td> {{ item.amount|floatformat:2 }} €</td>
+                </tr>
+            {% endfor %}
+                <tfoot>
+                    <td>Total</td>
+                    <td>{{ invoice.total.amount__sum|floatformat:2 }} €</td>
+                </tfoot>
+            </tbody>
+          </table>
+          <a href="#" class="card-link">Visualiser la facture</a>
+          <a href="#" class="card-link">Expédier la facture</a>
+        </div>
+      </div>
+{% endfor %}
+
+{% endblock %}

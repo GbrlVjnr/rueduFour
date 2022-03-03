@@ -8,4 +8,5 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('<int:year>/', views.home, name='home'),
     path('import/', views.importBankData, name='importTransactions'),
+    path('facturation/<int:year>/<int:month>/', views.facturation, name='facturation'),
 ]

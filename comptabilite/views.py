@@ -29,7 +29,7 @@ def index(request):
 def loginPage(request):
 
     context = {
-        'title': "Connexion"
+        'page': "Connexion"
     }
 
     if request.method == "POST":
@@ -166,7 +166,7 @@ def home(request, year):
 
 
         context = {
-            'titre':  "ruedufourGestion",
+            'titre':  "ruedufourGestion - accueil",
             'page': "livre-journal",
             'year': year,
             'annee': allMonths,
@@ -237,3 +237,24 @@ def importBankData(request):
 
     return redirect('home', aujdh.year)
 
+@login_required
+def facturation(request, year, month):
+
+    accounts = Account.objects.filter(is_active = True).order_by('full_name')
+
+    data = []
+
+    for account in accounts:
+        expenses = Distribution.objects.filter(account=account, entry__date__year=year, entry__date__month=month).exclude(amount=0)
+        data_set = {'account': account, 'expenses': expenses, 'total': expenses.aggregate(Sum('amount'))}
+        data.append(data_set) 
+
+    context = {
+        'titre':  "ruedufourGestion - Facturation",
+        'page': "facturation",
+        'year': year,
+        'aujdh': aujdh,
+        'invoices': data,
+
+    }
+    return render(request, "facturation.html", context)
