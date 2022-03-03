@@ -1,4 +1,5 @@
 # Navigation
+from ast import Try
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 # Authentication
@@ -48,7 +49,27 @@ def unlogUser(request):
 @login_required
 def home(request, year):
 
-    entries = Entry.objects.all().order_by('date')
+    if request.method == "POST":
+
+        entry = Entry.objects.get(pk=request.POST['entry_id'])
+
+        if request.POST['form_type'] == "entry_edit":
+
+            try:
+
+                entry.label = request.POST['label']
+                entry.VAT_rate = request.POST['VAT']
+                entry.save()
+
+                return redirect('home', aujdh.year)
+
+            except:
+
+                return redirect('home', aujdh.year, {'error_message': "Problème lors de la sauvegarde des modifications."})
+
+    else:
+
+         entries = Entry.objects.all().order_by('date')
 
     allMonths = {
         1: 'janvier',
@@ -66,7 +87,7 @@ def home(request, year):
     }
 
     context = {
-        'titre':  "rueduFour",
+        'titre':  "ruedufourGestion",
         'page': "livre-journal",
         'year': year,
         'annee': allMonths,
@@ -74,6 +95,69 @@ def home(request, year):
         'entrees': entries,
     }
     return render(request, "livrejournal.html", context)
+        
+
+# @login_required
+# def editDistribution(request, entry_id):
+
+#     entry = Entry.objects.get(pk=entry_id)
+
+#     if request.method == "POST":
+
+#         try:
+
+#             entry.label = request.POST['label']
+#             entry.save()
+
+#             # Distributes the transaction equally among tenants and creates Distribution equal to 0 for the others
+#             if request.POST['distribution'] == "tenants":
+#                 distributed_amount = entry.amount / 3
+#                 tenants = Account.objects.filter(contract="tenant")
+#                 others = Account.objects.all().exclude(
+#                     is_active=False).exclude(contract="tenant")
+#                 for tenant in tenants:
+#                     new_distribution = Distribution(
+#                         entry=entry, account=tenant, amount=distributed_amount)
+#                     new_distribution.save()
+#                 for other in others:
+#                     new_distribution = Distribution(
+#                         entry=entry, account=other, amount=0.00)
+#                     new_distribution.save()
+
+#             # Distributes the transaction among active accounts depending on their rent
+#             elif request.POST['distribution'] == "rent":
+#                 accounts = Account.objects.filter(is_active=True)
+#                 for account in accounts:
+#                     if account.contract == "tenant":
+#                         subrents_amount = accounts.aggregate(Sum('rent'))
+#                         print(subrents_amount)
+#                         new_distribution = Distribution(
+#                             entry=entry, account=account, amount=(entry.amount - subrents_amount['rent__sum'])/3)
+#                         new_distribution.save()
+#                         print("saved!")
+#                     else:
+#                         new_distribution = Distribution(
+#                             entry=entry, account=account, amount=account.rent)
+#                         new_distribution.save()
+
+#             # Distributes the transaction depending on the amounts specified in the form
+#             elif request.POST['distribution'] == "custom":
+#                 active_accounts = Account.objects.filter(is_active=True)
+#                 for account in active_accounts:
+#                     if request.POST[str(account.id)] == '':
+#                         new_distribution = Distribution(
+#                             entry=entry, account=account, amount=0.00)
+#                         new_distribution.save()
+#                     else:
+#                         new_distribution = Distribution(
+#                             entry=entry, account=account, amount=request.POST[str(account.id)])
+#                         new_distribution.save()
+            
+#             return redirect('home', aujdh.year)
+
+#         except:
+
+#             return redirect('home', aujdh.year, {'error_message': "Problème lors de l'enregistrement des données."})
 
 @login_required
 def importBankData(request):

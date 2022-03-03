@@ -87,17 +87,28 @@
                                         </div>
                                         <div class="modal-body">
                                             <form>
+                                                <input type="hidden" name="form_type" value="entry_edit">
+                                                <input type="hidden" name="edit_id" value="{{ entry.id }}">
                                                 <div class="row g-3">
                                                     <div class="col-2">
                                                       <input type="text" class="form-control" placeholder="{{ entry.date }}" aria-label="Date" disabled>
                                                     </div>
-                                                    <div class="col-sm-8">
-                                                      <input type="text" class="form-control" placeholder="{{ entry.label }}" aria-label="Label">
+                                                    <div class="col-sm-6">
+                                                      <input name="label" type="text" class="form-control" placeholder="{{ entry.label }}" aria-label="Label">
                                                     </div>
                                                     <div class="col-2">
                                                       <input type="text" class="form-control" placeholder="{{ entry.amount }}" aria-label="Amount" disabled>
                                                     </div>
-                                                  </div>
+                                                    <div class="col-2">
+                                                        <select class="form-select" aria-label="Sélectionner le taux de TVA">
+                                                            <option value="NOR" selected>Ordinaire (20%)</option>
+                                                            <option value="MID">Intermédiaire (10%)</option>
+                                                            <option value="RED">Réduite (5,5%)</option>
+                                                            <option value="SPE">Spéciale (2,1%)</option>
+                                                            <option value="NUL">Non-applicable</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary"
@@ -155,15 +166,26 @@
                                             </div>
                                             <div class="modal-body">
                                                 <form>
-                                                    <div class="row g-3">
+                                                    <input type="hidden" name="form_type" value="entry_edit">
+                                                    <input type="hidden" name="edit_id" value="{{ entry.id }}">
+                                                        <div class="row g-3">
                                                         <div class="col-2">
                                                           <input type="text" class="form-control" placeholder="{{ entry.date }}" aria-label="Date" disabled>
                                                         </div>
-                                                        <div class="col-sm-8">
+                                                        <div class="col-sm-6">
                                                           <input type="text" class="form-control" placeholder="{{ entry.label }}" aria-label="Label">
                                                         </div>
                                                         <div class="col-2">
                                                           <input type="text" class="form-control" placeholder="{{ entry.amount }}" aria-label="Amount" disabled>
+                                                        </div>
+                                                        <div class="col-2">
+                                                            <select class="form-select" aria-label="Sélectionner le taux de TVA">
+                                                                <option value="NOR" selected>Ordinaire (20%)</option>
+                                                                <option value="MID">Intermédiaire (10%)</option>
+                                                                <option value="RED">Réduite (5,5%)</option>
+                                                                <option value="SPE">Spéciale (2,1%)</option>
+                                                                <option value="NUL">Non-applicable</option>
+                                                            </select>
                                                         </div>
                                                       </div>
                                             </div>
