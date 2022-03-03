@@ -110,16 +110,18 @@ def home(request, year):
 
                 # Distributes the transaction depending on the amounts specified in the form
                 elif request.POST['distribution'] == "custom":
-                    for item, key in request.POST:
-                        print(key)
-                        if item[str(key)] != '':
-                            if Distribution.objects.filter(entry=entry, account__id=key).exists():
-                                Distribution.objects.filter(entry=entry, account__id=key).update(
-                                    entry=entry, account=key, amount=item[str(key)])
-                        else:
-                            new_distribution = Distribution(
-                                entry=entry, account=account, amount=item[str(key)])
-                            new_distribution.save()
+                    for key, value in request.POST.items():
+                        if key.startswith("account") and value != '':
+                            if Distribution.objects.filter(entry=entry, account__id=int(key.split('_')[1])).exists():
+                                account_to_assign = Account.objects.get(pk=int(key.split('_')[1]))
+                                Distribution.objects.filter(entry=entry, account__id=int(key.split('_')[1])).update(
+                                    entry=entry, account=account_to_assign, amount=float(value))
+                            else:
+                                print("new distribution")
+                                account_to_assign = Account.objects.get(pk=int(key.split('_')[1]))
+                                new_distribution = Distribution(
+                                    entry=entry, account=account_to_assign, amount=float(value))
+                                new_distribution.save()
 
                 return redirect('home', aujdh.year)
 
@@ -129,98 +131,53 @@ def home(request, year):
 
     else:
 
-         entries = Entry.objects.all().order_by('date')
-         accounts = Account.objects.all().filter(is_active=True).order_by('full_name')
+        entries = Entry.objects.all().order_by('date')
+        accounts = Account.objects.all().filter(is_active=True).order_by('full_name')
 
-    allMonths = {
-        1: 'janvier',
-        2: 'février',
-        3: 'mars',
-        4: 'avril',
-        5: 'mai',
-        6: 'juin',
-        7: 'juillet',
-        8: 'août',
-        9: 'septembre',
-        10: 'octobre',
-        11: 'novembre',
-        12: 'décembre'
-    }
+        allMonths = {
+            1: 'janvier',
+            2: 'février',
+            3: 'mars',
+            4: 'avril',
+            5: 'mai',
+            6: 'juin',
+            7: 'juillet',
+            8: 'août',
+            9: 'septembre',
+            10: 'octobre',
+            11: 'novembre',
+            12: 'décembre'
+        }
 
-    context = {
-        'titre':  "ruedufourGestion",
-        'page': "livre-journal",
-        'year': year,
-        'annee': allMonths,
-        'aujdh': aujdh,
-        'entrees': entries,
-        'accounts': accounts,
-    }
-    return render(request, "livrejournal.html", context)
+        def monthly_total(type, year, month):
+            amount = Entry.objects.filter(
+                date__year=year,
+                date__month=month,
+                type=type).aggregate(Sum('amount'))['amount__sum']
+            return amount
+
+        incomeTotals = {}
+        for key in allMonths.keys():
+            incomeTotals[key] = monthly_total('INC', year, key)
+
+        expenseTotals = {}
+        for key in allMonths.keys():
+            expenseTotals[key] = monthly_total('EXP', year, key)
+
+
+        context = {
+            'titre':  "ruedufourGestion",
+            'page': "livre-journal",
+            'year': year,
+            'annee': allMonths,
+            'aujdh': aujdh,
+            'entrees': entries,
+            'accounts': accounts,
+            'incomeTotals': incomeTotals,
+            'expenseTotals': expenseTotals,
+        }
+        return render(request, "livrejournal.html", context)
         
-
-# @login_required
-# def editDistribution(request, entry_id):
-
-#     entry = Entry.objects.get(pk=entry_id)
-
-#     if request.method == "POST":
-
-#         try:
-
-#             entry.label = request.POST['label']
-#             entry.save()
-
-#             # Distributes the transaction equally among tenants and creates Distribution equal to 0 for the others
-#             if request.POST['distribution'] == "tenants":
-#                 distributed_amount = entry.amount / 3
-#                 tenants = Account.objects.filter(contract="tenant")
-#                 others = Account.objects.all().exclude(
-#                     is_active=False).exclude(contract="tenant")
-#                 for tenant in tenants:
-#                     new_distribution = Distribution(
-#                         entry=entry, account=tenant, amount=distributed_amount)
-#                     new_distribution.save()
-#                 for other in others:
-#                     new_distribution = Distribution(
-#                         entry=entry, account=other, amount=0.00)
-#                     new_distribution.save()
-
-#             # Distributes the transaction among active accounts depending on their rent
-#             elif request.POST['distribution'] == "rent":
-#                 accounts = Account.objects.filter(is_active=True)
-#                 for account in accounts:
-#                     if account.contract == "tenant":
-#                         subrents_amount = accounts.aggregate(Sum('rent'))
-#                         print(subrents_amount)
-#                         new_distribution = Distribution(
-#                             entry=entry, account=account, amount=(entry.amount - subrents_amount['rent__sum'])/3)
-#                         new_distribution.save()
-#                         print("saved!")
-#                     else:
-#                         new_distribution = Distribution(
-#                             entry=entry, account=account, amount=account.rent)
-#                         new_distribution.save()
-
-#             # Distributes the transaction depending on the amounts specified in the form
-#             elif request.POST['distribution'] == "custom":
-#                 active_accounts = Account.objects.filter(is_active=True)
-#                 for account in active_accounts:
-#                     if request.POST[str(account.id)] == '':
-#                         new_distribution = Distribution(
-#                             entry=entry, account=account, amount=0.00)
-#                         new_distribution.save()
-#                     else:
-#                         new_distribution = Distribution(
-#                             entry=entry, account=account, amount=request.POST[str(account.id)])
-#                         new_distribution.save()
-            
-#             return redirect('home', aujdh.year)
-
-#         except:
-
-#             return redirect('home', aujdh.year, {'error_message': "Problème lors de l'enregistrement des données."})
-
 @login_required
 def importBankData(request):
     from woob.core import Woob
@@ -247,12 +204,10 @@ def importBankData(request):
                 return True
 
         def isNew(transaction):
-            last_entry = Entry.objects.latest('date')
-
-            if transaction.date >= last_entry.date and abs(transaction.amount) != last_entry.amount:
-                return True
-            else:
+            if Entry.objects.filter(unique_id=transaction.unique_id()).exists():
                 return False
+            else:
+                return True
             
         if databaseIsEmpty():
             transactions_to_import = all_transactions
@@ -262,10 +217,10 @@ def importBankData(request):
         transactions_counter = 0
         for transaction in transactions_to_import:
             if transaction.amount < 0:
-                new_transaction = Entry(type='EXP', date=transaction.date,
+                new_transaction = Entry(type='EXP', unique_id=transaction.unique_id(), date=transaction.date,
                                         label=transaction.label, amount=abs(transaction.amount))
             else:
-                new_transaction = Entry(type='INC', date=transaction.date,
+                new_transaction = Entry(type='INC', unique_id=transaction.unique_id(),date=transaction.date,
                                         label=transaction.label, amount=abs(transaction.amount))
             new_transaction.save()
             transactions_counter += 1

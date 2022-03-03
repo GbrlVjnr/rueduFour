@@ -41,6 +41,7 @@ class Entry(models.Model):
         ('NUL', 'null'),
         ('ND', 'undetermined'),
     ]
+    unique_id = models.CharField(max_length=10, default='')
     label = models.CharField(max_length=300)
     amount = models.FloatField(default=0.00)
     type = models.CharField(max_length=3, choices=ENTRY_TYPES)

@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load custom_extras %}
+
 {% block content %}
 <!-- Titre de la page -->
 <h1 class="display-2 m-4 text-capitalize">{{ page }}</h1>
@@ -127,7 +129,7 @@
                         </tbody>
                         <tfoot>
                             <td colspan="2">Total</td>
-                            <td colspan="3">{{ monthly_expense.amount__sum }}</td>
+                            <td colspan="3">{{ incomeTotals|getvalue:key|floatformat:2 }} €</td>
                         </tfoot>
                     </table>
                 </div>
@@ -256,7 +258,7 @@
                                                     <div class="row m-3">
                                                         <label for="user" class="col-sm-4 col-form-label">{{ account.full_name }}</label>
                                                         <div class="mb-2 col-sm-8">
-                                                            <input type="text" name="{{ account.id }}" class="form-control form-control-sm" id="user">
+                                                            <input type="text" name="account_{{ account.id }}" class="form-control form-control-sm" id="user">
                                                         </div>
                                                     </div>
                                                   {% endfor %}
@@ -278,7 +280,7 @@
                         </tbody>
                         <tfoot>
                             <td colspan="2">Total</td>
-                            <td colspan="3">1250 €</td>
+                            <td colspan="3">{{expenseTotals|getvalue:key|floatformat:2}} €</td>
                         </tfoot>
                     </table>
                 </div>
