@@ -73,7 +73,6 @@ def home(request, year):
         if request.POST['form_type'] == "distribution_edit":
 
             try:
-
                  # Distributes the transaction equally among tenants and creates Distribution equal to 0 for the others
                 if request.POST['distribution'] == "tenants":
                     distributed_amount = entry.amount / 3
@@ -81,13 +80,21 @@ def home(request, year):
                     others = Account.objects.all().exclude(
                         is_active=False).exclude(contract="tenant")
                     for tenant in tenants:
-                        new_distribution = Distribution(
+                        if Distribution.objects.filter(entry=entry, account=tenant):
+                            Distribution.objects.filter(entry=entry, account=tenant).update(
                             entry=entry, account=tenant, amount=distributed_amount)
-                        new_distribution.save()
+                        else:
+                            new_distribution = Distribution(
+                                entry=entry, account=tenant, amount=distributed_amount)
+                            new_distribution.save()
                     for other in others:
-                        new_distribution = Distribution(
-                            entry=entry, account=other, amount=0.00)
-                        new_distribution.save()
+                        if Distribution.objects.filter(entry=entry, account=other):
+                            Distribution.objects.filter(entry=entry, account=other).update(
+                            entry=entry, account=tenant, amount=distributed_amount)
+                        else:
+                            new_distribution = Distribution(
+                                entry=entry, account=other, amount=0.00)
+                            new_distribution.save()
 
                 # Distributes the transaction among active accounts depending on their rent
                 elif request.POST['distribution'] == "rent":
