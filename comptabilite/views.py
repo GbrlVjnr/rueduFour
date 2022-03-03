@@ -92,25 +92,32 @@ def home(request, year):
                     for account in accounts:
                         if account.contract == "tenant":
                             subrents_amount = accounts.aggregate(Sum('rent'))
-                            new_distribution = Distribution(
-                            entry=entry, account=account, amount=(entry.amount - subrents_amount['rent__sum'])/3)
-                            new_distribution.save()
+                            if Distribution.objects.filter(entry=entry, account=account).exists():
+                                Distribution.objects.filter(entry=entry, account=account).update(
+                                    entry=entry, account=account, amount=distributed_amount)
+                            else:
+                                new_distribution = Distribution(
+                                    entry=entry, account=account, amount=(entry.amount - subrents_amount['rent__sum'])/3)
+                                new_distribution.save()
                         else:
-                            new_distribution = Distribution(
-                                entry=entry, account=account, amount=account.rent)
-                            new_distribution.save()
+                            if Distribution.objects.filter(entry=entry, account=account).exists():
+                                Distribution.objects.filter(entry=entry, account=account).update(
+                                    entry=entry, account=account, amount=distributed_amount)
+                            else:
+                                new_distribution = Distribution(
+                                    entry=entry, account=account, amount=account.rent)
+                                new_distribution.save()
 
                 # Distributes the transaction depending on the amounts specified in the form
                 elif request.POST['distribution'] == "custom":
-                    active_accounts = Account.objects.filter(is_active=True)
-                    for account in active_accounts:
-                        if request.POST[str(account.id)] == '':
-                            new_distribution = Distribution(
-                                entry=entry, account=account, amount=0.00)
-                            new_distribution.save()
+                    for item, key in request.POST:
+                        if item[key] != '':
+                            if Distribution.objects.filter(entry=entry, account__id=key).exists():
+                                Distribution.objects.filter(entry=entry, account__id=key).update(
+                                    entry=entry, account=key, amount=item[key])
                         else:
                             new_distribution = Distribution(
-                                entry=entry, account=account, amount=request.POST[str(account.id)])
+                                entry=entry, account=account, amount=item[key])
                             new_distribution.save()
 
                 return redirect('home', aujdh.year)
