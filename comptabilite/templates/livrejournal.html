@@ -175,7 +175,7 @@
                                                           <input type="text" class="form-control" placeholder="{{ entry.date }}" aria-label="Date" disabled>
                                                         </div>
                                                         <div class="col-sm-6">
-                                                          <input type="text" class="form-control" placeholder="{{ entry.label }}" aria-label="Label">
+                                                          <input name="label" type="text" class="form-control" placeholder="{{ entry.label }}" aria-label="Label">
                                                         </div>
                                                         <div class="col-2">
                                                           <input type="text" class="form-control" placeholder="{{ entry.amount }}" aria-label="Amount" disabled>
@@ -216,69 +216,50 @@
                                         <div class="modal-body">
                                             <div class="container border border-2 p-2">
                                                 <h6>Répartition actuelle</h6>
+                                                {% if entry.distribution_set.all %}
                                                 <ul class="list-group">
-                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                      Guillaume Antourville
-                                                      <span class="badge bg-primary rounded-pill">14.55 €</span>
-                                                    </li>
-                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                      Soraya Nouar
-                                                      <span class="badge bg-primary rounded-pill">230.77 €</span>
-                                                    </li>
-                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                      Gabriel Vejnar
-                                                      <span class="badge bg-primary rounded-pill">1080.70 €</span>
-                                                    </li>
-                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                        Gabriel Vejnar
-                                                        <span class="badge bg-primary rounded-pill">1080.70 €</span>
-                                                      </li>
+                                                    {% for distribution in entry.distribution_set.all|dictsort:"account.id" %}
+                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                            {{ distribution.account.full_name }}
+                                                            <span class="badge bg-primary rounded-pill">{{ distribution.amount|floatformat:2 }} €</span>
+                                                        </li>
+                                                    {% endfor %}
                                                 </ul>
+                                                {% else %}
+                                                    <p>Pas de répartition définie</p>
+                                                {% endif %}
                                             </div>
                                             <h5 class="m-3">Modifier</h5>
-                                            <form>
+                                            <form method="POST" action="{% url 'home' year %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="form_type" value="distribution_edit">
+                                                <input type="hidden" name="entry_id" value="{{ entry.id }}">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" value="" id="flexRadioCheckChecked" checked>
+                                                    <input name="distribution" value="tenants" class="form-check-input" type="radio" id="flexRadioCheckChecked" checked>
                                                     <label class="form-check-label" for="flexRadioCheckChecked">
                                                       Égale et entre les locataires seulement
                                                     </label>
                                                   </div>
                                                   <div class="form-check">
-                                                    <input class="form-check-input" type="radio" value="" id="flexRadioCheckDefault">
+                                                    <input name="distribution" value="rent" class="form-check-input" type="radio" id="flexRadioCheckDefault">
                                                     <label class="form-check-label" for="flexRadioCheckDefault">
                                                       Selon le montant du loyer
                                                     </label>
                                                   </div>
                                                   <div class="form-check">
-                                                    <input class="form-check-input" type="radio" value="" id="flexRadioCheckDefault">
+                                                    <input name="distribution" value="custom" class="form-check-input" type="radio" id="flexRadioCheckDefault">
                                                     <label class="form-check-label" for="flexRadioCheckDefault">
                                                       Répartition manuelle:
                                                     </label>
                                                   </div>
-                                                  <div class="row m-3">
-                                                    <label for="user" class="col-sm-4 col-form-label">Gabriel Vejnar</label>
-                                                    <div class="mb-2 col-sm-8">
-                                                      <input type="text" class="form-control form-control-sm" id="user">
+                                                  {% for account in accounts %}
+                                                    <div class="row m-3">
+                                                        <label for="user" class="col-sm-4 col-form-label">{{ account.full_name }}</label>
+                                                        <div class="mb-2 col-sm-8">
+                                                            <input type="text" name="{{ account.id }}" class="form-control form-control-sm" id="user">
+                                                        </div>
                                                     </div>
-                                                  </div>
-                                                  <div class="row m-3">
-                                                    <label for="user" class="col-sm-4 col-form-label">Gabriel Vejnar</label>
-                                                    <div class="mb-2 col-sm-8">
-                                                      <input type="text" class="form-control form-control-sm" id="user">
-                                                    </div>
-                                                  </div>
-                                                  <div class="row m-3">
-                                                    <label for="user" class="col-sm-4 col-form-label">Gabriel Vejnar</label>
-                                                    <div class="mb-2 col-sm-8">
-                                                      <input type="text" class="form-control form-control-sm" id="user">
-                                                    </div>
-                                                  </div>
-                                                  <div class="row m-3">
-                                                    <label for="user" class="col-sm-4 col-form-label">Gabriel Vejnar</label>
-                                                    <div class="mb-2 col-sm-8">
-                                                      <input type="text" class="form-control form-control-sm" id="user">
-                                                    </div>
-                                                  </div>      
+                                                  {% endfor %}
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary"

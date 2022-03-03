@@ -7,6 +7,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 # App configuration
 from django.conf import settings
+# Sum
+from django.db.models import Sum
+
 
 # Woob module (bank data retriever)
 from woob.capabilities.bank.base import AccountNotFound
@@ -66,10 +69,63 @@ def home(request, year):
             except:
 
                 return redirect('home', aujdh.year)
+        
+        if request.POST['form_type'] == "distribution_edit":
+
+            try:
+
+                 # Distributes the transaction equally among tenants and creates Distribution equal to 0 for the others
+                if request.POST['distribution'] == "tenants":
+                    distributed_amount = entry.amount / 3
+                    tenants = Account.objects.filter(contract="tenant")
+                    others = Account.objects.all().exclude(
+                        is_active=False).exclude(contract="tenant")
+                    for tenant in tenants:
+                        new_distribution = Distribution(
+                            entry=entry, account=tenant, amount=distributed_amount)
+                        new_distribution.save()
+                    for other in others:
+                        new_distribution = Distribution(
+                            entry=entry, account=other, amount=0.00)
+                        new_distribution.save()
+
+                # Distributes the transaction among active accounts depending on their rent
+                elif request.POST['distribution'] == "rent":
+                    accounts = Account.objects.filter(is_active=True)
+                    for account in accounts:
+                        if account.contract == "tenant":
+                            subrents_amount = accounts.aggregate(Sum('rent'))
+                            new_distribution = Distribution(
+                            entry=entry, account=account, amount=(entry.amount - subrents_amount['rent__sum'])/3)
+                            new_distribution.save()
+                        else:
+                            new_distribution = Distribution(
+                                entry=entry, account=account, amount=account.rent)
+                            new_distribution.save()
+
+                # Distributes the transaction depending on the amounts specified in the form
+                elif request.POST['distribution'] == "custom":
+                    active_accounts = Account.objects.filter(is_active=True)
+                    for account in active_accounts:
+                        if request.POST[str(account.id)] == '':
+                            new_distribution = Distribution(
+                                entry=entry, account=account, amount=0.00)
+                            new_distribution.save()
+                        else:
+                            new_distribution = Distribution(
+                                entry=entry, account=account, amount=request.POST[str(account.id)])
+                            new_distribution.save()
+
+                return redirect('home', aujdh.year)
+
+            except:
+
+                return redirect('home', aujdh.year)
 
     else:
 
          entries = Entry.objects.all().order_by('date')
+         accounts = Account.objects.all().filter(is_active=True).order_by('full_name')
 
     allMonths = {
         1: 'janvier',
@@ -93,6 +149,7 @@ def home(request, year):
         'annee': allMonths,
         'aujdh': aujdh,
         'entrees': entries,
+        'accounts': accounts,
     }
     return render(request, "livrejournal.html", context)
         
