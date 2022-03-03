@@ -65,7 +65,7 @@ def home(request, year):
 
             except:
 
-                return redirect('home', aujdh.year, {'error_message': "Problème lors de la sauvegarde des modifications."})
+                return redirect('home', aujdh.year)
 
     else:
 
