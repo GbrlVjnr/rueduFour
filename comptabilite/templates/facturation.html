@@ -6,9 +6,9 @@
 <!-- Titre de la page -->
 <h1 class="display-2 m-4 text-capitalize">{{ page }}</h1>
 
-<div class="d-flex justify-content-center">
+<!-- <div class="d-flex justify-content-center"> -->
     {% for invoice in invoices %}
-    <div class="card p-3 m-2" style="width: 40rem;">
+    <div class="card p-3 m-2" style="width: 50rem;">
         <div class="card-body">
           <h5 class="card-title">{{ invoice.account.full_name }} </h5>
           <h6 class="card-subtitle mb-2 text-muted">Adresse d'expédition: {{ invoice.account.email }}</h6>
@@ -39,6 +39,6 @@
         </div>
       </div>
 {% endfor %}
-</div>
+<!-- </div> -->
 
 {% endblock %}

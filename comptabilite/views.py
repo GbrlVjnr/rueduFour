@@ -328,9 +328,4 @@ def send_invoice(request, year, month, accountid):
     email.attach('facture.pdf', pdf, 'application/pdf')
     email.send()
 
-    context = {
-        'year': year,
-        'month': month,
-    }
-
-    return redirect('facturation', context)
+    return redirect('facturation', year=year, month=month)
