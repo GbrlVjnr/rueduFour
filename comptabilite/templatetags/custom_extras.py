@@ -8,4 +8,4 @@ def getvalue(value, key):
 
 @register.filter(name="previous")
 def previous(value):
-    return value - 1
+    return int(value) - 1

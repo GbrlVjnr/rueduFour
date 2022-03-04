@@ -1,7 +1,7 @@
 # Navigation
 from ast import Try
 from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 # Authentication
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -9,16 +9,26 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 # Sum
 from django.db.models import Sum
+# Template for PDF
+from django.template.loader import get_template
+# Sending Emails
+from django.core.mail import EmailMessage
+
 
 
 # Woob module (bank data retriever)
 from woob.capabilities.bank.base import AccountNotFound
+
+# PDF module
+from xhtml2pdf import pisa
 
 # App modules
 from .models import Account, Distribution, Entry
 
 # Python modules
 from datetime import datetime, date
+from io import BytesIO
+
 
 aujdh = datetime.now()
 
@@ -253,8 +263,74 @@ def facturation(request, year, month):
         'titre':  "ruedufourGestion - Facturation",
         'page': "facturation",
         'year': year,
+        'month': month,
         'aujdh': aujdh,
         'invoices': data,
-
     }
+
     return render(request, "facturation.html", context)
+
+# Loads in the browser a PDF file for a specific invoice
+@login_required
+def pdf_invoice(request, year, month, accountid):
+
+    # Collects the data for the invoice view
+    account = Account.objects.get(pk=accountid)
+    expenses = Distribution.objects.filter(account=account, entry__date__year=year, entry__date__month=month).exclude(amount=0)
+    total = expenses.aggregate(Sum('amount'))
+
+    data = {
+        'account': account,
+        'expenses': expenses,
+        'total': total,
+        'current_date': datetime.now().date,
+    }
+    
+    # PDF rendering
+    template = get_template('pdf_template.html')
+    html = template.render(data)
+    result = BytesIO()
+    pisa.pisaDocument(BytesIO(html.encode("utf-8")), result)
+    
+    return HttpResponse(result.getvalue(), content_type='application/pdf')
+
+@login_required
+def send_invoice(request, year, month, accountid):
+
+    # Collects the data for the invoice view
+    account = Account.objects.get(pk=accountid)
+    expenses = Distribution.objects.filter(
+        account=account, 
+        entry__date__year=year, 
+        entry__date__month=month).exclude(amount=0)
+    total = expenses.aggregate(Sum('amount'))
+
+    data = {
+        'account': account,
+        'expenses': expenses,
+        'total': total,
+        'current_date': datetime.now().date,
+    }
+    
+    # PDF rendering
+    template = get_template('pdf_template.html')
+    html = template.render(data)
+    result = BytesIO()
+    pisa.pisaDocument(BytesIO(html.encode("utf-8")), result)
+    pdf = result.getvalue()
+
+    # Email
+    email = EmailMessage(
+        'Facture',
+        'Mon cher Confrère,\n\n\n Vous trouverez ci-joint la facture pour le mois courant.\n\n Je vous prie de nous croire,\n\nVos bien dévoués,\n\n\nGabriel Vejnar,\n\nGuillaume Antourville,\n\nRomain Ruiz.',
+        to=[account.email],
+    )
+    email.attach('facture.pdf', pdf, 'application/pdf')
+    email.send()
+
+    context = {
+        'year': year,
+        'month': month,
+    }
+
+    return redirect('facturation', context)

@@ -6,7 +6,8 @@
 <!-- Titre de la page -->
 <h1 class="display-2 m-4 text-capitalize">{{ page }}</h1>
 
-{% for invoice in invoices %}
+<div class="d-flex justify-content-center">
+    {% for invoice in invoices %}
     <div class="card p-3 m-2" style="width: 40rem;">
         <div class="card-body">
           <h5 class="card-title">{{ invoice.account.full_name }} </h5>
@@ -33,10 +34,11 @@
                 </tfoot>
             </tbody>
           </table>
-          <a href="#" class="card-link">Visualiser la facture</a>
-          <a href="#" class="card-link">Expédier la facture</a>
+          <a href="{% url 'pdf_invoice' year month invoice.account.id %}" class="card-link">Visualiser la facture</a>
+          <a href="{% url 'send_invoice' year month invoice.account.id %}" class="card-link">Expédier la facture</a>
         </div>
       </div>
 {% endfor %}
+</div>
 
 {% endblock %}

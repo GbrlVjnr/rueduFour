@@ -1,0 +1,163 @@
+<head>
+    <style>
+
+        body {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 12pt;
+        }
+
+        h2,h3 {
+            font-family: "Copperplate", "Copperplate Gothic Light", serif;
+            text-align: center;
+            margin: 3pt;
+        }
+
+        .subtitle {
+            font-style: italic;
+        }
+
+        tr, td {
+            border: none;
+        }
+
+        .date_cell {
+            padding-top: 5pt;
+        }
+
+        .title {
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .items-table {
+            border: 0.5pt solid black;
+            padding: 3pt;
+            font-size: 9pt;
+        }
+
+        .VAT {
+            font-size: 9pt;
+            font-style: italic;
+            text-align: right;
+        }
+
+        .amount_cell {
+            text-align: right;
+        }
+
+        .total_cells {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .formula {
+            font-style: italic;
+            text-align: center;
+        }
+
+        .names {
+            font-weight: bold;
+            font-size: 11pt;
+            text-align: right;
+        }
+
+        .footer {
+            margin: 0.2pt;
+            text-align: center;
+            font-size: 9pt;
+            font-weight: bold;
+        }
+
+        @page {
+            size: a4 portrait;
+            @frame header_frame {           /* Static Frame */
+                -pdf-frame-content: header_content;
+                left: 50pt; width: 512pt; top: 40pt; height: 100pt;
+            }
+            @frame recipient_frame {           /* Static Frame */
+                -pdf-frame-content: recipient_content;
+                left: 300pt; width: 240pt; top: 160pt; height: 100pt;
+            }
+            @frame content_frame {          /* Content Frame */
+                left: 100pt; width: 412pt; top: 300pt; height: 632pt;
+            }
+            @frame footer_frame {           /* Another static Frame */
+                -pdf-frame-content: footer_content;
+                left: 50pt; width: 512pt; top: 790pt; height: 150pt;
+            }
+        }
+    </style>
+    <meta charset="UTF-8">
+    </head>
+    
+    <body>
+        <!-- Content for Static Frame 'header_frame' -->
+        <div id="header_content">
+            <h2>CABINET GROUPÉ</h2>
+            <h2>VEJNAR - ANTOURVILLE - RUIZ</h2>
+            <h3 class="subtitle">Avocats à la Cour</h3>
+        </div>
+    
+        <!-- Content for Static Frame 'footer_frame' -->
+        <div id="footer_content">
+            <table class="footer">
+                <tr><td>53, RUE DU FOUR 75006 PARIS</td><tr>
+                <tr><td>TÉL. : 01 73 70 34 88 | FAX : 01 43 21 71 86 | PALAIS : C 1856</td></tr>
+            </table>
+        </div>
+
+        <div id="recipient_content">
+            <table>
+                <tr>
+                    {% if account.gender == 'M' %}
+                    <td><strong>Monsieur {{ account.full_name }}, avocat</strong></td>
+                    {% else %}
+                    <td><strong>Madame {{ account.full_name }}, avocat</strong></td>
+                    {% endif %}
+                </tr>
+                <tr>
+                    <td>53, rue du Four</td>
+                </tr>
+                <tr>
+                    <td>75006 Paris</td>
+                </tr>
+                <tr>
+                    <td>{{ account.email }}</td>
+                </tr>
+                <tr>
+                    <td class="date_cell"> Paris, le {{ current_date }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="title">FACTURE</div>
+    
+        <table class="items-table">
+
+            <tr>
+                <th>Description</th>
+                <th>Montant T.T.C (en euros)</th>
+                <th>T.V.A (en euros)</th>
+            </tr>
+
+            {% for expense in expenses %}
+            <tr>
+                <td> {{ expense.entry.label }} </td>
+                <td class="amount_cell"> {{ expense.amount|floatformat:2 }}</td>
+                <td class="VAT">{{ expense.VAT_amount|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+            <tr class="total_cells">
+                <td>Total à régler</td>
+                <td>{{ total.amount__sum|floatformat:2 }} euros T.T.C</td>
+            </tr>
+        </table>
+
+        <p class="formula">EN VOTRE AIMABLE RÈGLEMENT</p>
+        <p class="names">GABRIEL VEJNAR</p>
+        <p class="names">GUILLAUME ANTOURVILLE</p>
+        <p class="names">ROMAIN RUIZ</p>
+        
+    
+    </body>
+    </html>
