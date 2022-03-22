@@ -39,7 +39,9 @@ def index(request):
 def loginPage(request):
 
     context = {
-        'page': "Connexion"
+        'page': "Connexion",
+        'year': aujdh.year,
+        'aujdh': aujdh,
     }
 
     if request.method == "POST":
