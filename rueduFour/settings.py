@@ -30,7 +30,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = env('SECRET_KEY')
 
 # Deployment config
-DEBUG = False
+DEBUG = True
 
 # Deployment config
 # ALLOWED_HOSTS = []
