@@ -293,8 +293,10 @@ def pdf_invoice(request, year, month, accountid):
     html = template.render(data)
     result = BytesIO()
     pisa.pisaDocument(BytesIO(html.encode("utf-8")), result)
+    response = HttpResponse(result.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename=facture_{account.full_name}.pdf'
     
-    return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return response
 
 @login_required
 def send_invoice(request, year, month, accountid):
