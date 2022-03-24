@@ -1,6 +1,6 @@
 # Creates a custom admin command to populate the database from Numbers files exported to csv
 from django.core.management.base import BaseCommand, CommandError
-from bookkeeping.models import Account, Entry, Distribution
+from comptabilite.models import Account, Entry, Distribution
 
 import fileinput
 import csv
