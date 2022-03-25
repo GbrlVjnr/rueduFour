@@ -216,7 +216,7 @@ def importBankData(request):
                 return True
 
         def isNew(transaction):
-            if Entry.objects.filter(unique_id=transaction.unique_id()).exists():
+            if Entry.objects.filter(unique_id=transaction.unique_id()).exists() or transaction.date <= datetime.datetime(2021, 12, 31):
                 return False
             else:
                 return True

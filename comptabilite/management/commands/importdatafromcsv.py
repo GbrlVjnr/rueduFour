@@ -45,9 +45,10 @@ class Command(BaseCommand):
                         rank = 6
                         # Creates a new distribution for each registered user in the csv file
                         for amount_column in COLUMNS[6:]:
-                            new_distribution_account = Account.objects.get(full_name__contains=COLUMNS[rank])
-                            new_distribution = Distribution(entry = new_expense, account=new_distribution_account, amount=amountToFloat(line[rank][:-2]))
-                            new_distribution.save()
+                            if amountToFloat(line[rank][:-2]) > 0:
+                                new_distribution_account = Account.objects.get(full_name__contains=COLUMNS[rank])
+                                new_distribution = Distribution(entry = new_expense, account=new_distribution_account, amount=amountToFloat(line[rank][:-2]))
+                                new_distribution.save()
                             rank += 1
                 
         self.stdout.write(self.style.SUCCESS(f'Données importées avec succès !'))
