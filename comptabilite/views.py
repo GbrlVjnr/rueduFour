@@ -23,7 +23,7 @@ from woob.capabilities.bank.base import AccountNotFound
 from xhtml2pdf import pisa
 
 # App modules
-from .models import Account, Distribution, Entry
+from .models import Account, Distribution, PrintsDistribution, Entry
 
 # Python modules
 from datetime import datetime, date
@@ -129,11 +129,24 @@ def home(request, year):
                                 Distribution.objects.filter(entry=entry, account__id=int(key.split('_')[1])).update(
                                     entry=entry, account=account_to_assign, amount=float(value))
                             else:
-                                print("new distribution")
                                 account_to_assign = Account.objects.get(pk=int(key.split('_')[1]))
                                 new_distribution = Distribution(
                                     entry=entry, account=account_to_assign, amount=float(value))
                                 new_distribution.save()
+                
+                # Distributes the transaction depending on the specified number of color or b&w prints
+                elif request.POST['distribution'] == "prints":
+                    for key, value in request.POST.items():
+                        if key.startswith("prints") and value != '':
+                            if PrintsDistribution.objects.filter(entry=entry, account__id=int(key.split('_')[2])).exists():
+                                account_to_assign = Account.objects.get(pk=int(key.split('_')[2]))
+                                PrintsDistribution.objects.filter(entry=entry, account__id=int(key.split('_')[2])).update(
+                                    entry=entry, account=account_to_assign, amount=int(value), type=key.split('_')[1])
+                            else:
+                                account_to_assign = Account.objects.get(pk=int(key.split('_')[2]))
+                                new_print_distribution = PrintsDistribution(
+                                    entry=entry, account=account_to_assign, amount=int(value), type=key.split('_')[1])
+                                new_print_distribution.save()
 
                 return redirect('home', aujdh.year)
 

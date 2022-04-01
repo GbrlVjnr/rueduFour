@@ -89,11 +89,15 @@ class Distribution(models.Model):
         return f"Account: {self.account.full_name} // Entry: {self.entry.label}"
 
 class PrintsDistribution(models.Model):
+    PRINTS_TYPES = [
+        ('B&W', 'black_and_white'),
+        ('C', 'color'),
+    ]
     entry = models.ForeignKey(Entry, on_delete=models.CASCADE)
     account = models.ForeignKey(
         Account, on_delete=CASCADE)
-    blackAndWhite = models.IntegerField(default=0)
-    color = models.IntegerField(default=0)
+    amount = models.IntegerField(default=0)
+    type = models.models.CharField(max_length=3, choices=PRINTS_TYPES)
     date = models.DateField(default=datetime.datetime.now())
 
 
