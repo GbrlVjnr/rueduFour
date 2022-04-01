@@ -97,7 +97,7 @@ class PrintsDistribution(models.Model):
     account = models.ForeignKey(
         Account, on_delete=CASCADE)
     amount = models.IntegerField(default=0)
-    type = models.models.CharField(max_length=3, choices=PRINTS_TYPES)
+    type = models.CharField(max_length=3, choices=PRINTS_TYPES)
     date = models.DateField(default=datetime.datetime.now())
 
 
