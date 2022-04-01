@@ -88,6 +88,15 @@ class Distribution(models.Model):
     def __str__(self):
         return f"Account: {self.account.full_name} // Entry: {self.entry.label}"
 
+class PrintsDistribution(models.Model):
+    entry = models.ForeignKey(Entry, on_delete=models.CASCADE)
+    account = models.ForeignKey(
+        Account, on_delete=CASCADE)
+    blackAndWhite = models.IntegerField(default=0)
+    color = models.IntegerField(default=0)
+    date = models.DateFiel(default=datetime.datetime.now())
+
+
 # class Invoice(models.Model):
 #     account = models.ForeignKey(
 #         Account, on_delete=CASCADE)
