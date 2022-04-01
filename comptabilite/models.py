@@ -94,7 +94,7 @@ class PrintsDistribution(models.Model):
         Account, on_delete=CASCADE)
     blackAndWhite = models.IntegerField(default=0)
     color = models.IntegerField(default=0)
-    date = models.DateFiel(default=datetime.datetime.now())
+    date = models.DateField(default=datetime.datetime.now())
 
 
 # class Invoice(models.Model):
