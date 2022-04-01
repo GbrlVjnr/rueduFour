@@ -272,8 +272,8 @@ def facturation(request, year, month):
     for account in accounts:
         expenses = Distribution.objects.filter(account=account, entry__date__year=year, entry__date__month=month).exclude(amount=0)
         prints = PrintsDistribution.objects.filter(account=account, entry__date__year=year, entry__date__month=month)
-        black_and_white_expense = prints.objects.filter(type="B&W").first().amount * 0.00356 * 1.2
-        color_expense = prints.objects.filter(type="C").first().amount * 0.03562 * 1.2
+        black_and_white_expense = prints.get(type="B&W").amount * 0.00356 * 1.2
+        color_expense = prints.get(type="C").amount * 0.03562 * 1.2
         data_set = {'account': account, 'expenses': expenses, 'prints': prints, 'black_and_white_expense': black_and_white_expense, 'color_expense': color_expense, 'total': expenses.aggregate(Sum('amount'))}
         data.append(data_set) 
 
