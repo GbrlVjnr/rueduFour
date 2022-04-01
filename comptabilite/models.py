@@ -100,6 +100,8 @@ class PrintsDistribution(models.Model):
     type = models.CharField(max_length=3, choices=PRINTS_TYPES)
     date = models.DateField(default=datetime.datetime.now())
 
+    def __str__(self):
+        return f"Account: {self.account.full_name} // Type: {self.entry.type}"
 
 # class Invoice(models.Model):
 #     account = models.ForeignKey(
