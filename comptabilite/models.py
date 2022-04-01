@@ -101,7 +101,7 @@ class PrintsDistribution(models.Model):
     date = models.DateField(default=datetime.datetime.now())
 
     def __str__(self):
-        return f"Account: {self.account.full_name} // Type: {self.entry.type}"
+        return f"Account: {self.account.full_name} // Type: {self.type}"
 
 # class Invoice(models.Model):
 #     account = models.ForeignKey(

@@ -138,7 +138,7 @@ def home(request, year):
                 elif request.POST['distribution'] == "prints":
                     for key, value in request.POST.items():
                         if key.startswith("prints") and value != '':
-                            if PrintsDistribution.objects.filter(entry=entry, account__id=int(key.split('_')[2])).exists():
+                            if PrintsDistribution.objects.filter(entry=entry, account__id=int(key.split('_')[2]), type=key.split('_')[1]).exists():
                                 account_to_assign = Account.objects.get(pk=int(key.split('_')[2]))
                                 PrintsDistribution.objects.filter(entry=entry, account__id=int(key.split('_')[2])).update(
                                     entry=entry, account=account_to_assign, amount=int(value), type=key.split('_')[1])
