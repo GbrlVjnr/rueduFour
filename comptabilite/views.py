@@ -140,9 +140,9 @@ def home(request, year):
                     for key, value in request.POST.items():
                         if key.startswith("prints") and value != '':
                             if PrintsDistribution.objects.filter(entry=entry, account__id=int(key.split('_')[2]), type=key.split('_')[1]).exists():
+                                print("already exists!!")
                                 account_to_assign = Account.objects.get(pk=int(key.split('_')[2]))
-                                PrintsDistribution.objects.filter(entry=entry, account__id=int(key.split('_')[2])).update(
-                                    entry=entry, account=account_to_assign, amount=int(value), type=key.split('_')[1])
+                                PrintsDistribution.objects.filter(entry=entry, account__id=int(key.split('_')[2]), type=key.split('_')[1]).update(amount=int(value))
                             else:
                                 account_to_assign = Account.objects.get(pk=int(key.split('_')[2]))
                                 new_print_distribution = PrintsDistribution(
@@ -272,11 +272,13 @@ def facturation(request, year, month):
 
     for account in accounts:
         expenses = Distribution.objects.filter(account=account, entry__date__year=year, entry__date__month=month).exclude(amount=0)
+        total_expenses = expenses.aggregate(Sum('amount'))['amount__sum'] if expenses.exists() else 0
         prints = PrintsDistribution.objects.filter(account=account, entry__date__year=year, entry__date__month=month)
         black_and_white_expense = prints.get(type="B&W").amount * 0.00356 * 1.2 if prints.exists() else 0
         color_expense = prints.get(type="C").amount * 0.03562 * 1.2 if prints.exists() else 0
-        data_set = {'account': account, 'expenses': expenses, 'prints': prints, 'black_and_white_expense': black_and_white_expense, 'color_expense': color_expense, 'total': expenses.aggregate(Sum('amount'))}
-        data.append(data_set) 
+        total = total_expenses + black_and_white_expense + color_expense
+        data_set = {'account': account, 'expenses': expenses, 'prints': prints, 'black_and_white_expense': black_and_white_expense, 'color_expense': color_expense, 'total_expenses': total}
+        data.append(data_set)
 
     context = {
         'titre':  "ruedufourGestion - Facturation",
@@ -296,11 +298,19 @@ def pdf_invoice(request, year, month, accountid):
     # Collects the data for the invoice view
     account = Account.objects.get(pk=accountid)
     expenses = Distribution.objects.filter(account=account, entry__date__year=year, entry__date__month=month).exclude(amount=0)
-    total = expenses.aggregate(Sum('amount'))
+    total_expenses = expenses.aggregate(Sum('amount'))['amount__sum'] if expenses.exists() else 0
+    prints = PrintsDistribution.objects.filter(account=account, entry__date__year=year, entry__date__month=month)
+    black_and_white_expense = prints.get(type="B&W").amount * 0.00356 * 1.2 if prints.exists() else 0
+    color_expense = prints.get(type="C").amount * 0.03562 * 1.2 if prints.exists() else 0
+    total = total_expenses + black_and_white_expense + color_expense
 
     data = {
         'account': account,
         'expenses': expenses,
+        'total_expenses': total_expenses,
+        'prints': prints,
+        'black_and_white_expense': black_and_white_expense,
+        'color_expense': color_expense,
         'total': total,
         'current_date': datetime.now().date,
     }

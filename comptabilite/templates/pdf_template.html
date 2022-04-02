@@ -1,3 +1,5 @@
+{% load custom_extras %}
+
 <head>
     <style>
 
@@ -147,9 +149,23 @@
                 <td class="VAT">{{ expense.VAT_amount|floatformat:2 }}</td>
             </tr>
             {% endfor %}
+            {% if black_and_white_expense != 0 %}
+                <tr>
+                  <td>Impressions et copies noir et blanc ({{ prints|blackandwhite }})</td>
+                  <td class="amount_cell"> {{ black_and_white_expense|floatformat:2 }}</td>
+                  <td class="VAT">{{ black_and_white_expense|getVAT|floatformat:2 }}</td>
+              </tr>
+            {% endif %}
+            {% if color_expense != 0 %}
+                <tr>
+                  <td>Impressions et copies couleur ({{ prints|color }})</td>
+                  <td class="amount_cell"> {{ color_expense|floatformat:2 }}</td>
+                  <td class="VAT">{{ color_expense|getVAT|floatformat:2 }}</td>
+              </tr>
+            {% endif %}
             <tr class="total_cells">
                 <td>Total à régler</td>
-                <td>{{ total.amount__sum|floatformat:2 }} euros T.T.C</td>
+                <td>{{ total|floatformat:2 }} euros T.T.C</td>
             </tr>
         </table>
 

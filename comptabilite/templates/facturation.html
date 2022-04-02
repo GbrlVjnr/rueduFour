@@ -28,15 +28,21 @@
                     <td> {{ item.amount|floatformat:2 }} €</td>
                 </tr>
                 {% endfor %}
-                {% if black_and_white_expense != 0 %}
+                {% if invoice.black_and_white_expense != 0 %}
                 <tr>
-                    <td> Impressions noir et blanc </td>
-                    <td> {{ item.black_and_white_expense|floatformat:2 }} €</td>
-                </tr>
+                  <td>Impressions et copies noir et blanc ({{ invoice.prints|blackandwhite }})</td>
+                  <td> {{ invoice.black_and_white_expense|floatformat:2 }} €</td>
+              </tr>
                 {% endif %}
+                {% if invoice.color_expense != 0 %}
+                <tr>
+                  <td>Impressions et copies couleur ({{ invoice.prints|color }})</td>
+                  <td> {{ invoice.color_expense|floatformat:2 }} €</td>
+              </tr>
+              {% endif %}
                 <tfoot>
                     <td>Total</td>
-                    <td>{{ invoice.total.amount__sum|floatformat:2 }} €</td>
+                    <td>{{ invoice.total_expenses|floatformat:2 }} €</td>
                 </tfoot>
             </tbody>
           </table>
