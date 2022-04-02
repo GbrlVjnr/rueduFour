@@ -271,7 +271,7 @@ def facturation(request, year, month):
     data = []
 
     def paper(price):
-        if account.status != "tenant":
+        if account.contract != "tenant":
             return price * 0.01524
         else:
             return price
