@@ -340,6 +340,12 @@ def pdf_invoice(request, year, month, accountid):
 @login_required
 def send_invoice(request, year, month, accountid):
 
+    def paper(price):
+        if account.contract != "tenant":
+            return price * 0.01524
+        else:
+            return price * 0
+
     # Collects the data for the invoice view
     account = Account.objects.get(pk=accountid)
     expenses = Distribution.objects.filter(account=account, entry__date__year=year, entry__date__month=month).exclude(amount=0)
