@@ -342,15 +342,20 @@ def send_invoice(request, year, month, accountid):
 
     # Collects the data for the invoice view
     account = Account.objects.get(pk=accountid)
-    expenses = Distribution.objects.filter(
-        account=account, 
-        entry__date__year=year, 
-        entry__date__month=month).exclude(amount=0)
-    total = expenses.aggregate(Sum('amount'))
+    expenses = Distribution.objects.filter(account=account, entry__date__year=year, entry__date__month=month).exclude(amount=0)
+    total_expenses = expenses.aggregate(Sum('amount'))['amount__sum'] if expenses.exists() else 0
+    prints = PrintsDistribution.objects.filter(account=account, entry__date__year=year, entry__date__month=month)
+    black_and_white_expense = paper(prints.get(type="B&W").amount) + (prints.get(type="B&W").amount * 0.00356) * 1.2 if prints.exists() else 0
+    color_expense = paper(prints.get(type="C").amount) + (prints.get(type="C").amount * 0.03562 * 1.2) if prints.exists() else 0
+    total = total_expenses + black_and_white_expense + color_expense
 
     data = {
         'account': account,
         'expenses': expenses,
+        'total_expenses': total_expenses,
+        'prints': prints,
+        'black_and_white_expense': black_and_white_expense,
+        'color_expense': color_expense,
         'total': total,
         'current_date': datetime.now().date,
     }
