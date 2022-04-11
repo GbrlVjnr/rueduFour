@@ -30,7 +30,7 @@
               <a class="nav-link {% if page == 'facturation' %} active {% endif %}" href="{% url 'facturation' year aujdh.month|previous %}">Facturation</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Tableau de bord</a>
+              <a class="nav-link" href="{% url 'dashboard' %}">Tableau de bord</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'admin:index' %}">Administration</a>

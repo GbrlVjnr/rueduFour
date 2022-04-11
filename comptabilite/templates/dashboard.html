@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% load custom_extras %}
+
+{% block content %}
+<!-- Titre de la page -->
+<h1 class="display-2 m-4 text-capitalize">{{ page }}</h1>
+
+    <!-- <p>Solde actuel du compte bancaire: {{ balance|floatformat:2 }} €</p> -->
+    <br>
+    <p>Montant total des recettes: {{ allTimeIncome|floatformat:2 }} €</p>
+    <p>Montant total des dépenses: {{ allTimeExpenses|floatformat:2 }} €</p>
+    <p>Balance générale: {{ allTimeBalance|floatformat:2 }} €</p>
+    <br>
+
+
+{% endblock %}

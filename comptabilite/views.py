@@ -218,7 +218,6 @@ def importBankData(request):
         })
 
         bank_accounts = list(backend.iter_accounts())
-        print(bank_accounts)
         all_transactions = backend.iter_history(bank_accounts[0])
 
         w.deinit()
@@ -383,3 +382,44 @@ def send_invoice(request, year, month, accountid):
     email.send()
 
     return redirect('facturation', year=year, month=month)
+
+@login_required
+def dashboard(request):
+    # from woob.core import Woob
+
+    # try:
+    #     w = Woob()
+    #     backend = w.build_backend('cragr', params={
+    #         'website': settings.BANK_WEBSITE,
+    #         'login': settings.BANK_LOGIN,
+    #         'password': settings.BANK_PASSWORD,
+    #     })
+
+    #     bank_accounts = list(backend.iter_accounts())
+    #     balance = bank_accounts[0].balance
+    
+    #     w.deinit()
+
+    # except AccountNotFound:
+
+    #     ErrorMessage = "Les données n'ont pas pu être chargées. Veuillez réessayer."
+    #     context = {'errorMessage': ErrorMessage}
+    
+    allTimeIncome = Entry.objects.filter(type="INC").aggregate(Sum('amount'))['amount__sum']
+    allTimeExpenses = Entry.objects.filter(type="EXP").aggregate(Sum('amount'))['amount__sum']
+    allTimeBalance = allTimeIncome - allTimeExpenses
+
+        
+
+    context = {
+        'titre': "ruedufourGestion - tableau de bord",
+        'page': "Tableau de bord",
+        'year': aujdh.year,
+        'aujdh': aujdh,
+        # 'balance': balance,
+        'allTimeIncome': allTimeIncome,
+        'allTimeExpenses': allTimeExpenses,
+        'allTimeBalance': allTimeBalance,
+    }
+
+    return render(request, "dashboard.html", context)
