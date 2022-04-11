@@ -409,7 +409,10 @@ def dashboard(request):
     allTimeExpenses = Entry.objects.filter(type="EXP").aggregate(Sum('amount'))['amount__sum']
     allTimeBalance = allTimeIncome - allTimeExpenses
 
-        
+    accountsData = []
+    for account in Account.objects.all():
+        expenses = Distribution.objects.filter(account=account).aggregate(Sum('amount'))
+        accountsData.append({'name': account.full_name, 'expenses': expenses})
 
     context = {
         'titre': "ruedufourGestion - tableau de bord",
@@ -420,6 +423,7 @@ def dashboard(request):
         'allTimeIncome': allTimeIncome,
         'allTimeExpenses': allTimeExpenses,
         'allTimeBalance': allTimeBalance,
+        'accountsData': accountsData,
     }
 
     return render(request, "dashboard.html", context)

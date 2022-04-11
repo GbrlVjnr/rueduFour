@@ -12,6 +12,9 @@
     <p>Montant total des dépenses: {{ allTimeExpenses|floatformat:2 }} €</p>
     <p>Balance générale: {{ allTimeBalance|floatformat:2 }} €</p>
     <br>
+    {% for account in accountsData %}
+        <p>{{ account.name }} : {{ account.expenses }}</p>
+    {% endfor %}
 
 
 {% endblock %}
