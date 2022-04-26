@@ -411,7 +411,7 @@ def dashboard(request):
 
     accountsData = []
     for account in Account.objects.all():
-        expenses = Distribution.objects.filter(account=account).aggregate(Sum('amount'))
+        expenses = Distribution.objects.filter(account=account, entry__date__year=2022).aggregate(Sum('amount'))['amount__sum']
         accountsData.append({'name': account.full_name, 'expenses': expenses})
 
     context = {
