@@ -1,13 +1,9 @@
 from django.db import models
-
-# Create your models here.
-from django.db import models
 from django.db.models.aggregates import Sum
 from django.db.models.deletion import CASCADE
+from django.db.models.fields import EmailField
 
 import datetime
-
-from django.db.models.fields import EmailField
 
 class Account(models.Model):
     GENDERS = [

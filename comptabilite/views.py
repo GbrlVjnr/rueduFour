@@ -1,6 +1,5 @@
 # Navigation
 from ast import Try
-from genericpath import exists
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponse
 # Authentication
@@ -18,6 +17,7 @@ from django.core.mail import EmailMessage
 
 
 # Woob module (bank data retriever)
+from woob.core import Woob
 from woob.capabilities.bank.base import AccountNotFound
 
 # PDF module
@@ -206,7 +206,6 @@ def home(request, year):
         
 @login_required
 def importBankData(request):
-    from woob.core import Woob
 
     try:
 
@@ -279,7 +278,7 @@ def facturation(request, year, month):
         expenses = Distribution.objects.filter(account=account, entry__date__year=year, entry__date__month=month).exclude(amount=0)
         total_expenses = expenses.aggregate(Sum('amount'))['amount__sum'] if expenses.exists() else 0
         prints = PrintsDistribution.objects.filter(account=account, entry__date__year=year, entry__date__month=month)
-        black_and_white_expense = paper(prints.get(type="B&W").amount) + (prints.get(type="B&W").amount * 0.00356) * 1.2 if prints.exists() else 0
+        black_and_white_expense = paper(prints.get(type="B&W").amount) + (prints.get(type="B&W").amount * 0.00356 * 1.2) if prints.exists() else 0
         color_expense = paper(prints.get(type="C").amount) + (prints.get(type="C").amount * 0.03562 * 1.2) if prints.exists() else 0
         total = total_expenses + black_and_white_expense + color_expense
         data_set = {'account': account, 'expenses': expenses, 'prints': prints, 'black_and_white_expense': black_and_white_expense, 'color_expense': color_expense, 'total_expenses': total}
@@ -385,25 +384,6 @@ def send_invoice(request, year, month, accountid):
 
 @login_required
 def dashboard(request):
-    # from woob.core import Woob
-
-    # try:
-    #     w = Woob()
-    #     backend = w.build_backend('cragr', params={
-    #         'website': settings.BANK_WEBSITE,
-    #         'login': settings.BANK_LOGIN,
-    #         'password': settings.BANK_PASSWORD,
-    #     })
-
-    #     bank_accounts = list(backend.iter_accounts())
-    #     balance = bank_accounts[0].balance
-    
-    #     w.deinit()
-
-    # except AccountNotFound:
-
-    #     ErrorMessage = "Les données n'ont pas pu être chargées. Veuillez réessayer."
-    #     context = {'errorMessage': ErrorMessage}
     
     allTimeIncome = Entry.objects.filter(type="INC").aggregate(Sum('amount'))['amount__sum']
     allTimeExpenses = Entry.objects.filter(type="EXP").aggregate(Sum('amount'))['amount__sum']
