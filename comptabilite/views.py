@@ -193,7 +193,7 @@ def home(request, year):
 
         context = {
             'titre':  "ruedufourGestion - accueil",
-            'page': "livre-Prout",
+            'page': "livre-Journal",
             'year': year,
             'annee': allMonths,
             'aujdh': aujdh,
