@@ -259,7 +259,7 @@ def importBankData(request):
         ErrorMessage = "Les données n'ont pas pu être chargées. Veuillez réessayer."
         context = {'errorMessage': ErrorMessage}
 
-    return redirect('home', aujdh.year)
+    return redirect('month_entry', year = current_date.year, month = current_date.month)
 
 @login_required
 def facturation(request, year, month):
@@ -289,7 +289,6 @@ def facturation(request, year, month):
         'page': "facturation",
         'year': year,
         'month': month,
-        'aujdh': aujdh,
         'invoices': data,
         'current_date': datetime.now(),
     }

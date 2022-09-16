@@ -145,7 +145,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 import datetime
 now = datetime.datetime.now()
 
-LOGIN_REDIRECT_URL = f'/{now.year}/{now.month}'
+LOGIN_REDIRECT_URL = f'/{now.year}/{now.month}/'
 LOGIN_URL = '/login/'
 
 # Woob Bank
