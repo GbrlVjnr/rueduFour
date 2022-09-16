@@ -1,0 +1,17 @@
+<form hx-put="{% url 'entry_detail' entry.date.year entry.date.month entry.date.day entry.id %}" hx-target="#printsdistributions">
+    {% csrf_token %}
+        <div class="form-group row">
+            <div class="col">
+                {{ form.account }}
+            </div>
+            <div class="col">
+                {{ form.type }}
+            </div>
+            <div class="col">
+                {{ form.amount }}
+            </div>
+            <div class="col text-start">
+                <input class="btn btn-primary btn-sm" type="submit" value="Ajouter" />
+            </div>
+        </div>
+</form>

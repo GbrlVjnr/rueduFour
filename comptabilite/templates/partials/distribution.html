@@ -1,0 +1,20 @@
+<h2 class="text-center">Répartition</h2>
+<div class="d-flex align-items-center justify-content-center gap-3 m-4">
+    <button hx-post="{% url 'distribute-auto' 'rent' object.id %}" hx-target="#distributions_ul" hx-swap="beforeend" class="btn btn-outline-primary btn-sm">Loyers</button>
+    <button hx-post="{% url 'distribute-auto' 'tenants' object.id %}" hx-target="#distributions_ul" hx-swap="beforeend" class="btn btn-outline-primary btn-sm">Entre les locataires seulement</button>
+    <button hx-target="#add-distribution-form" hx-get="{% url 'add-distribution-form' object.id %}" class="btn btn-outline-primary btn-sm">Ajouter une part</button>
+    <button hx-target="#add-printdistribution-form" hx-get="{% url 'add-printdistribution-form' object.id %}" class="btn btn-outline-primary btn-sm">Ajouter des impressions</button>
+    <button hx-post="{% url 'reset-distrib' object.id %}" hx-target="#distributions_ul" hx-swap="innerHTML" class="btn btn-outline-danger btn-sm">Tout supprimer</button>
+</div>
+    <ul id="distributions_ul" class="list-group list-group-flush m-5" hx-target="closest li" hx-swap="outerHTML">
+        {% if object.distribution_set.all %}
+            {% for distribution in object.distribution_set.all %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <p class="fs-6 mb-0"><i class="bi bi-file-person"></i> {{ distribution.account.full_name }}</p>
+                    <span class="fw-bold">{{ distribution.amount|floatformat:2 }} €</span>
+                    <a hx-delete="{% url 'delete-distrib' distribution.id %}"><i class="bi bi-trash"></i></a>
+                </li>
+            {% endfor %}
+        {% endif %}
+    </ul>
+<div id="add-distribution-form" class="m-5"></div>

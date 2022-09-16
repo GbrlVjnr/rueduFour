@@ -1,0 +1,63 @@
+{% extends '../base.html' %}
+
+{% block content %}
+
+<h1 class="text-center fw-bold text-capitalize m-4">Écritures {{ month|date:"F Y" }}</i></h1>
+
+<div class="row justify-content-center m-4">
+    <div class="col-4 text-center">
+        <div class="btn-group">
+            {% if previous_month %}
+                <a class="btn btn-sm btn-outline-secondary text-capitalize" type="button" href=" {% url 'entry_month' previous_month.year previous_month.month %}">
+                    <i class="bi bi-arrow-left-circle-fill"></i> {{ previous_month|date:"F Y" }}
+                </a>   
+            {% endif %}
+            {% if next_month %}
+                <a class="btn btn-sm btn-outline-secondary text-capitalize" type="button"  href=" {% url 'entry_month' next_month.year next_month.month %}">
+                    {{ next_month|date:"F Y" }} <i class="bi bi-arrow-right-circle-fill"></i>
+                </a>   
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+<div class="m-4" id="month-entries">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <td>Date</td>
+                <td>Libellé</td>
+                <td>Montant</td>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+        {% for entry in object_list %}
+        <tr>
+            <td class="text-muted">{{ entry.date|date:"j F Y" }}</td>
+            <td>{{ entry.label }}</td>
+            <td class="fw-bold text-end">
+                {% if entry.type == "EXP" %} - {% endif %}
+                {% if entry.type == "INC" %} + {% endif %}
+                {{ entry.amount|floatformat:2 }} €
+            </td>
+            <td>
+            <a href="{% url 'entry_detail' entry.date.year entry.date.month entry.date.day entry.id %}">
+            <button class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></button>
+            </a>
+            </td>
+            <td>
+            {% if entry.distribution_set.all %}
+            <i class="bi bi-pie-chart-fill"></i>
+            {% else %}
+            <i class="bi bi-pie-chart"></i>
+            {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+</div>
+
+{% endblock content %}

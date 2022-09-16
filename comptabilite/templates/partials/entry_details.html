@@ -1,0 +1,22 @@
+
+<div class="d-grid gap-3 m-3">
+
+    <div>
+        <p class="fs-6 fst-italic text-uppercase fw-light m-0 text-muted">Intitulé</p>
+        <div class="fs-2">{{ object.label }}</div>
+    </div>
+    <div>
+        <p class="fs-6 fst-italic text-uppercase fw-light mb-0 text-muted">Date</p>
+        <div class="fs-3">{{ object.date }}</div>
+    </div>
+    <div>
+        <p class="fs-6 fst-italic text-uppercase fw-light mb-0 text-muted">Montant</p>
+        <div class="fs-3 fw-bold">{{ object.amount|floatformat:2 }} €</div>
+    </div>
+    <div>
+        <p class="fs-6 fst-italic text-uppercase fw-light mb-0 text-muted">TVA</p>
+        <div class="fs-5">{{ object.VAT_rate }}</div>
+    </div>
+
+    <button hx-target="#entry-details" hx-get="{% url 'edit-entry-form' object.id %}" class="btn btn-primary">Modifier</button>
+</div>

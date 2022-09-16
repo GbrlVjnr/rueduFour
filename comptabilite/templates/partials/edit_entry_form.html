@@ -1,0 +1,31 @@
+<div class="d-grid gap-3 m-3">
+
+    <form hx-put="{% url 'entry_detail' entry.date.year entry.date.month entry.date.day entry.id %}" hx-target="#entry-details">
+    
+        {% csrf_token %}
+
+        {{ form.unique_id }}
+
+    <div>
+        <p class="fs-6 fst-italic text-uppercase fw-light m-0 text-muted">Intitulé</p>
+        <div class="fs-2">{{ form.label }}</div>
+    </div>
+    <div>
+        <p class="fs-6 fst-italic text-uppercase fw-light mb-0 text-muted">Date</p>
+        <div class="fs-3">{{ entry.date }}</div>
+    </div>
+    <div>
+        <p class="fs-6 fst-italic text-uppercase fw-light mb-0 text-muted">Montant</p>
+        <div class="fs-3 fw-bold">{{ entry.amount|floatformat:2 }} €</div>
+    </div>
+    <div>
+        <p class="fs-6 fst-italic text-uppercase fw-light mb-0 text-muted">TVA</p>
+        <div class="fs-5">{{ form.VAT_rate }}</div>
+    </div>
+
+    <div>
+        <input class="btn btn-outline-primary" type="submit" value="Valider" />
+    </div>
+    </form>
+
+</div>

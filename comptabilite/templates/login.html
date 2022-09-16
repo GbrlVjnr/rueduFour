@@ -2,19 +2,23 @@
 
 {% block content %}
 
-<h1 class="display-2 m-4 text-capitalize">{{ page }}</h1>
+<h1 class="text-center fw-bold text-capitalize m-4">{{ page }}</h1>
 
-<form action="" method="post">
-    {% csrf_token %}
-    <div class="form-floating mb-3">
-        <input name="username" type="text" class="form-control" id="floatingInput" placeholder="Lulu">
-        <label for="floatingInput">Nom d'utilisateur</label>
-      </div>
-      <div class="form-floating">
-        <input name="password" type="password" class="form-control" id="floatingPassword" placeholder="Password">
-        <label for="floatingPassword">Mot de passe</label>
-      </div>
-      <button type="submit" class="btn btn-primary">Connexion</button>
-</form>
+<div class="container-sm mx-auto border p-2"> 
+  <form action="" method="post">
+      {% csrf_token %}
+      <div class="form-floating mb-3">
+          <input name="username" type="text" class="form-control" id="floatingInput" placeholder="Lulu">
+          <label for="floatingInput">Nom d'utilisateur</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input name="password" type="password" class="form-control" id="floatingPassword" placeholder="Password">
+          <label for="floatingPassword">Mot de passe</label>
+        </div>
+        <div class="form-floating">
+          <button type="submit" class="btn btn-primary">Connexion</button>
+        </div>
+  </form>
+</div>
 
 {% endblock %}

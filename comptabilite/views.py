@@ -291,6 +291,7 @@ def facturation(request, year, month):
         'month': month,
         'aujdh': aujdh,
         'invoices': data,
+        'current_date': datetime.now(),
     }
 
     return render(request, "facturation.html", context)
@@ -404,6 +405,144 @@ def dashboard(request):
         'allTimeExpenses': allTimeExpenses,
         'allTimeBalance': allTimeBalance,
         'accountsData': accountsData,
+        'current_date': datetime.now(),
     }
 
     return render(request, "dashboard.html", context)
+
+from django.views.generic.dates import MonthArchiveView, DateDetailView
+from django.http import QueryDict
+
+class EntriesMonthView(MonthArchiveView):
+    queryset =  Entry.objects.all()
+    date_field = "date"
+    allow_future = False
+    template_name = "partials/entry_archive_month.html"
+    ordering = "date"
+    extra_context = {'current_date': datetime.now()}
+
+
+class EntryDetailView(DateDetailView):
+    model=Entry
+    date_field="date"
+    year_format="%Y"
+    month_format= "%m"
+    day_format="%d"
+    template_name="partials/entry_detail.html"
+    extra_context = {'current_date': datetime.now()}
+
+
+    def put(self, request, *args, **kwargs):
+        entry = self.get_object()
+        data = QueryDict(request.body).dict()
+        print(data)
+        if "label" in data:
+            form = EditEntryForm(data, instance=entry)
+            if form.is_valid():
+                form.save()
+                return render(request, 'partials/entry_details.html', {'object': entry})
+        elif "account" in data and "type" not in data:
+            form = DistributionEditForm(data)
+            if form.is_valid():
+                new_distrib = form.save(commit = False)
+                new_distrib.entry = entry
+                new_distrib.save()
+                return render(request, 'partials/distribution.html', {'object': entry})
+        elif "type" in data:
+            form = PrintDistributionForm(data)
+            print("ohoho prints")
+            if form.is_valid():
+                print("is valid !")
+                new_printsdistrib = form.save(commit = False)
+                new_printsdistrib.entry = entry
+                new_printsdistrib.save()
+                return render(request, 'partials/printsdistribution.html', {'object': entry})
+        
+
+from .forms import EditEntryForm, DistributionEditForm, PrintDistributionForm
+
+def edit_entry_form(request, entry_id):
+    entry = Entry.objects.get(pk=entry_id)
+    form = EditEntryForm(instance=entry)
+    context = {
+        'entry': entry,
+        'form': form,
+    }
+    return render(request, "partials/edit_entry_form.html", context)
+
+def add_distribution_form(request, entry_id):
+    entry = Entry.objects.get(pk=entry_id)
+    form = DistributionEditForm()
+    context = {
+        'entry': entry,
+        'form': form,
+    }
+    return render(request, "partials/distribution_edit_form.html", context)
+
+def add_printdistribution_form(request, entry_id):
+    entry = Entry.objects.get(pk=entry_id)
+    form = PrintDistributionForm()
+    context = {
+        'entry': entry,
+        'form': form,
+    }
+    return render(request, "partials/printdistribution_form.html", context)
+
+def distribute_auto(request, entry_id, type):
+    entry = Entry.objects.get(pk=entry_id)
+    if type == "tenants":
+        distributed_amount = entry.amount / 3
+        tenants = Account.objects.filter(contract="tenant")
+        distributions = []
+        for tenant in tenants:
+            if Distribution.objects.filter(entry=entry, account=tenant).exists():
+                Distribution.objects.filter(entry=entry, account=tenant).update(
+                entry=entry, account=tenant, amount=distributed_amount)
+            else:
+                new_distribution = Distribution(
+                    entry=entry, account=tenant, amount=distributed_amount)
+                new_distribution.save()
+                distributions.append(new_distribution)
+    elif type == "rent":
+        accounts = Account.objects.filter(is_active=True)
+        distributions = []
+        for account in accounts:
+            if account.contract == "tenant":
+                subrents_amount = accounts.aggregate(Sum('rent'))
+                if Distribution.objects.filter(entry=entry, account=account).exists():
+                    Distribution.objects.filter(entry=entry, account=account).update(
+                        entry=entry, account=account, amount=distributed_amount)
+                else:
+                    new_distribution = Distribution(
+                        entry=entry, account=account, amount=(entry.amount - subrents_amount['rent__sum'])/3)
+                    new_distribution.save()
+                    distributions.append(new_distribution)
+            else:
+                if Distribution.objects.filter(entry=entry, account=account).exists():
+                    Distribution.objects.filter(entry=entry, account=account).update(
+                        entry=entry, account=account, amount=distributed_amount)
+                else:
+                    new_distribution = Distribution(
+                        entry=entry, account=account, amount=account.rent)
+                    new_distribution.save()
+                    distributions.append(new_distribution)
+    return render(request, "partials/distributions_li.html", {'distributions': distributions})
+
+
+from django.http import HttpResponse
+
+def delete_distrib(request, distribution_id):
+    distribution_to_delete = Distribution.objects.get(pk=distribution_id)
+    distribution_to_delete.delete()
+    return HttpResponse('')
+
+def reset_distrib(request, entry_id):
+    entry = Entry.objects.get(pk=entry_id)
+    distributions_to_delete = Distribution.objects.filter(entry=entry)
+    distributions_to_delete.delete()
+    return HttpResponse('')
+
+def delete_printdistrib(request, printdistribution_id):
+    printdistribution_to_delete = PrintsDistribution.objects.get(pk=printdistribution_id)
+    printdistribution_to_delete.delete()
+    return HttpResponse('')
