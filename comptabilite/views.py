@@ -31,18 +31,18 @@ from datetime import datetime, date
 from io import BytesIO
 
 
-aujdh = datetime.now()
+current_date = datetime.now()
 
 @login_required
 def index(request):
-    return redirect('home', year = aujdh.year)
+    return redirect('entry_month', year = current_date.year, month = current_date.month)
 
 def loginPage(request):
 
     context = {
         'page': "Connexion",
-        'year': aujdh.year,
-        'aujdh': aujdh,
+        'year': current_date.year,
+        'current_date': current_date,
     }
 
     if request.method == "POST":
